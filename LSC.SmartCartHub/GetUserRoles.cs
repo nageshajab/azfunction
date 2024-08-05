@@ -28,7 +28,7 @@ namespace LSC.SmartCartHub
             log.LogInformation("C# HTTP trigger function processing GetUserRoles request.");
 
             var userRoles = new List<string>();
-            string clientcode=string.Empty;
+            string clientcode = string.Empty;
             StringBuilder sb = new("roles=");
 
             try
@@ -63,15 +63,24 @@ namespace LSC.SmartCartHub
                         var reader = comm.ExecuteReader();
                         while (reader.Read())
                         {
-                            sb.Append(reader.GetString(0) + ",");
+                            string rolename = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                            sb.Append(rolename + ",");
                         }
                         reader.Close();
 
                         //get client code
-                        comm.CommandText = $"select clientcode from users u where u.ObjectId='{adObjId}'";
+                        comm.CommandText = $"select u.clientcode,u.TaxId from users u where u.ObjectId='{adObjId}'";
                         log.LogInformation($"executing sql query {comm.CommandText}");
 
-                        clientcode= comm.ExecuteScalar().ToString();
+                        reader = comm.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            clientcode = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                            var taxid = reader.IsDBNull(1) ? "" : reader.GetString(1);
+
+                            sb.Append("clientcode=" + clientcode + ",TaxId=" + taxid);
+                        }
+                        reader.Close();
                     }
                     sqlConnection.Close();
                 }
@@ -80,11 +89,9 @@ namespace LSC.SmartCartHub
             {
                 log.LogError(ex.Message + ex.InnerException?.Message);
             }
-            
-            var rolesSeparatedByComma = sb.ToString()+ "clientcode="+clientcode;       
 
-            log.LogInformation(rolesSeparatedByComma);
-            return new OkObjectResult(rolesSeparatedByComma);
+            log.LogInformation(sb.ToString());
+            return new OkObjectResult(sb.ToString());
         }
     }
 }

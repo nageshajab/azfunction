@@ -39,12 +39,6 @@ namespace LSC.SmartCartHub
         public string jobTitle { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string extension_EmployeeName { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string extension_EmployeeRole { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string extension_userRoles { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -52,5 +46,8 @@ namespace LSC.SmartCartHub
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string extension_ClientCode { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string extension_TaxId { get; set; }
     }
 }

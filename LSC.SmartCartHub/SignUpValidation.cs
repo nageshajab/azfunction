@@ -108,7 +108,7 @@ namespace LSC.SmartCartHub
             log.LogDebug($"user object id returned from function updateUserProfile is {userProfileResponse.AdObjId}");
 
             var userRoles = await GetUserRolesFunction(userProfileResponse.AdObjId,log);
-            var roleArray= userRoles.Split(new string[] { "roles=", "clientcode=" }, StringSplitOptions.None);
+            var roleArray= userRoles.Split(new string[] { "roles=", "clientcode=", "TaxId=" }, StringSplitOptions.None);
 
             // insert/update user profile
             var role = "Admin";//"User";
@@ -121,10 +121,9 @@ namespace LSC.SmartCartHub
             {
                 //jobTitle = "This value return by the API Connector",// this jobTitle is in built attribute, you ca change that value as well
                 // You can also return custom claims using extension properties.
-                extension_EmployeeName = data.displayName,
-                extension_EmployeeRole = "SuperAdmin",//role,
                 extension_userRoles = roleArray[1].Substring(0, roleArray[1].Length - 1),
-                extension_ClientCode = roleArray[2],
+                extension_ClientCode = roleArray[2].Substring(0, roleArray[2].Length - 1),
+                extension_TaxId =roleArray[3],
                 extension_userId = userProfileResponse.UserId.ToString(),
             };
 

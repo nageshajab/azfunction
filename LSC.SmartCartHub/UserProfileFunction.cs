@@ -79,7 +79,8 @@ namespace LSC.SmartCartHub
                 {
                     if (reader.Read())
                     {
-                        profile.DisplayName = reader.GetString(1) + "found user";
+                        string displyaname = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                        profile.DisplayName = displyaname + "found user";
                     }
                     else
                     {
