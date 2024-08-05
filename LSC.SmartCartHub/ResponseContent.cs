@@ -49,5 +49,8 @@ namespace LSC.SmartCartHub
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string extension_userId { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string extension_ClientCode { get; set; }
     }
 }

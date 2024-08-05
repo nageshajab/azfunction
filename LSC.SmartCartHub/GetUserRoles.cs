@@ -28,8 +28,9 @@ namespace LSC.SmartCartHub
             log.LogInformation("C# HTTP trigger function processing GetUserRoles request.");
 
             var userRoles = new List<string>();
+            string clientcode=string.Empty;
+            StringBuilder sb = new("roles=");
 
-            StringBuilder sb = new();
             try
             {
                 string connectionString = Environment.GetEnvironmentVariable("DbContext");
@@ -65,6 +66,12 @@ namespace LSC.SmartCartHub
                             sb.Append(reader.GetString(0) + ",");
                         }
                         reader.Close();
+
+                        //get client code
+                        comm.CommandText = $"select clientcode from users u where u.ObjectId='{adObjId}'";
+                        log.LogInformation($"executing sql query {comm.CommandText}");
+
+                        clientcode= comm.ExecuteScalar().ToString();
                     }
                     sqlConnection.Close();
                 }
@@ -74,9 +81,7 @@ namespace LSC.SmartCartHub
                 log.LogError(ex.Message + ex.InnerException?.Message);
             }
             
-            var rolesSeparatedByComma = "";
-            if (sb.ToString().EndsWith(","))
-                rolesSeparatedByComma = sb.ToString().Substring(0, sb.ToString().Length - 1);
+            var rolesSeparatedByComma = sb.ToString()+ "clientcode="+clientcode;       
 
             log.LogInformation(rolesSeparatedByComma);
             return new OkObjectResult(rolesSeparatedByComma);
