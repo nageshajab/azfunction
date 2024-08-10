@@ -36,9 +36,6 @@ namespace LSC.SmartCartHub
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            // Allowed domains
-            string[] allowedDomain = { "gmail.com", "facebook.com" };
-
             //Check HTTP basic authorization
             if (!Authorize(req, log))
             {
@@ -63,33 +60,7 @@ namespace LSC.SmartCartHub
             // Get the current user language 
             string language = (data.ui_locales == null || data.ui_locales.ToString() == "") ? "default" : data.ui_locales.ToString();
             log.LogInformation($"Current language: {language}");
-
-            // If email claim not found, show block page. Email is required and sent by default.
-            if (data.email == null || data.email.ToString() == "" || data.email.ToString().Contains("@") == false)
-            {
-                log.LogInformation("email name is mandatory"    );
-                return (ActionResult)new OkObjectResult(new ResponseContent("ShowBlockPage", "Email name is mandatory."));
-            }
-
-            // Get domain of email address
-            string domain = data.email.ToString().Split("@")[1];
-
-            // Check the domain in the allowed list
-            if (!allowedDomain.Contains(domain.ToLower()))
-            {
-                string msg = $"You must have an account from '{string.Join(", ", allowedDomain)}' to register as an external user for Contoso.";
-                log.LogInformation(msg);
-                return (ActionResult)new OkObjectResult(new ResponseContent("ShowBlockPage",msg ));
-            }
-
-            // If displayName claim doesn't exist, or it is too short, show validation error message. So, user can fix the input data.
-            if (data.displayName == null || data.displayName.ToString().Length < 5)
-            {
-                string msg = "Please provide a Display Name with at least five characters.";
-                log.LogInformation(msg);
-                return (ActionResult)new BadRequestObjectResult(new ResponseContent("ValidationError", msg));
-            }
-
+                        
             var profile = new Profile()
             {
                 AdObjId = data.objectId,

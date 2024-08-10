@@ -75,6 +75,7 @@ namespace LSC.SmartCartHub
                 using SqlCommand command = new();
                 command.Connection=connection;
                 command.CommandText = $"select * from Users where ObjectId='{adObjId}'";
+                log.LogInformation(command.CommandText);
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
@@ -90,11 +91,13 @@ namespace LSC.SmartCartHub
                             using SqlCommand command2 = new();
                             command2.Connection = conn2;
                             command2.CommandText = $"insert into Users(ObjectId,email,Surname,DisplayName,GivenName) values('{profile.AdObjId}','{profile.Email}','{profile.LastName}','{profile.DisplayName}','{profile.FirstName}')";
+                            log.LogInformation(command2.CommandText);
                             command2.ExecuteNonQuery();
 
                             using SqlCommand command3 = new();
                             command3.Connection = conn2;
                             command3.CommandText = $"insert into UserRoles (userid, roleid) values('{profile.AdObjId}',3)";
+                            log.LogInformation(command3.CommandText);
                             command3.ExecuteNonQuery();
                         }
                     }
