@@ -36,13 +36,13 @@ namespace LSC.SmartCartHub
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            
-            //Check HTTP basic authorization
-            if (!Authorize(req, log))
-            {
-                log.LogInformation("HTTP basic authentication validation failed.");
-                return (ActionResult)new UnauthorizedResult();
-            }
+      
+            ////Check HTTP basic authorization
+            //if (!Authorize(req, log))
+            //{
+            //    log.LogInformation("HTTP basic authentication validation failed.");
+            //    return (ActionResult)new UnauthorizedResult();
+            //}
 
             // Get the request body
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
