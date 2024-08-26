@@ -51,7 +51,7 @@ namespace LSC.SmartCartHub
             if (data == null)
             {
                 log.LogInformation("There was a problem with your request.");
-                return (ActionResult)new OkObjectResult(new ResponseContent("ShowBlockPage", "There was a problem with your request."));
+                return new OkObjectResult(new ResponseContent("ShowBlockPage", "There was a problem with your request."));
             }
 
             // Print out the request body
@@ -80,13 +80,6 @@ namespace LSC.SmartCartHub
 
             var userRoles = await GetUserRolesFunction(userProfileResponse.AdObjId,log);
             var roleArray= userRoles.Split(new string[] { "roles=", "clientcode=", "TaxId=" }, StringSplitOptions.None);
-
-            // insert/update user profile
-            var role = "Admin";//"User";
-            if (data.email.ToString().ToLower() == "learnsmartcoding@gmail.com")
-                role = "SuperAdmin";
-            //else if (data.email.ToString().ToLower() == "karthiktechblog.com@gmail.com")
-            //    role = "Admin";
 
             var responseToReturn = new ResponseContent()
             {

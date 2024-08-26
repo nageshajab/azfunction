@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LSC.SmartCartHub
 {
@@ -73,7 +74,7 @@ namespace LSC.SmartCartHub
                 using SqlConnection connection = new SqlConnection(connectionString);
                 connection.Open();
                 using SqlCommand command = new();
-                command.Connection=connection;
+                command.Connection = connection;
                 command.CommandText = $"select * from Users where ObjectId='{adObjId}'";
                 log.LogInformation(command.CommandText);
                 using (var reader = command.ExecuteReader())
@@ -85,30 +86,49 @@ namespace LSC.SmartCartHub
                     }
                     else
                     {
-                        using (SqlConnection conn2 = new(connectionString))
+                        SqlConnection conn2 = new SqlConnection(connectionString) ;
+                        conn2.Open();
+                        using SqlCommand command1 = new();
+                        command1.Connection = conn2;
+                        command1.CommandText = $"select count(*) from Users where ObjectId='{profile.AdObjId}' and email='{profile.Email}'";
+                        log.LogInformation(command1.CommandText);
+                        int rows = int.Parse(command1.ExecuteScalar().ToString());
+                        conn2.Close();
+
+                        if (rows == 0)
                         {
-                            conn2.Open();
+                            SqlConnection conn3=new SqlConnection(connectionString) ;
+                            conn3.Open();
+                            log.LogInformation("user does not exists , creating one");
                             using SqlCommand command2 = new();
-                            command2.Connection = conn2;
+                            command2.Connection = conn3;
                             command2.CommandText = $"insert into Users(ObjectId,email,Surname,DisplayName,GivenName) values('{profile.AdObjId}','{profile.Email}','{profile.LastName}','{profile.DisplayName}','{profile.FirstName}')";
                             log.LogInformation(command2.CommandText);
                             command2.ExecuteNonQuery();
+                            conn3.Close();
 
+                            SqlConnection conn4 = new SqlConnection(connectionString);
+                            conn4.Open();
                             using SqlCommand command3 = new();
-                            command3.Connection = conn2;
+                            command3.Connection = conn4;
                             command3.CommandText = $"insert into UserRoles (userid, roleid) values('{profile.AdObjId}',3)";
                             log.LogInformation(command3.CommandText);
                             command3.ExecuteNonQuery();
+                            conn4.Close();
+                        }
+                        else
+                        {
+                            log.LogInformation("user already exist");
                         }
                     }
-                }        
-                userProfileResponse.AdObjId= adObjId;
+                }
+                userProfileResponse.AdObjId = adObjId;
                 userProfileResponse.Email = profile.Email;
                 userProfileResponse.FirstName = profile.FirstName;
                 userProfileResponse.LastName = profile.LastName;
                 userProfileResponse.DisplayName = profile.DisplayName;
-                
 
+                DeleteDuplicateUsers( profile.Email, profile.AdObjId, log);
             }
             catch (Exception ex)
             {
@@ -116,6 +136,22 @@ namespace LSC.SmartCartHub
             }
 
             return new OkObjectResult(userProfileResponse);
+        }
+
+        private static void DeleteDuplicateUsers(string email, string objectid, ILogger log)
+        {
+            string connectionString = Environment.GetEnvironmentVariable("DbContext");
+            SqlConnection conn=new SqlConnection(connectionString);
+            conn.Open();
+
+            //delete users matching same email id but with different object id, that means user was earlier there but was deleted and recreated again with same email
+            using SqlCommand command4 = new();
+            command4.Connection = conn;
+            command4.CommandText = $"delete users where email='{email}' and objectid !='{objectid}'";
+            log.LogInformation(command4.CommandText);
+            command4.ExecuteNonQuery();
+
+            conn.Close();
         }
     }
 }
